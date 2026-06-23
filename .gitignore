@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# uv
+# (uv.lock is committed on purpose)
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data & model artifacts
+data/*
+!data/.gitkeep
+*.pt
+*.bin
+*.gguf
+checkpoints/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
