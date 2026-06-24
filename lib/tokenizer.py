@@ -47,8 +47,8 @@ class Tokenizer:
             next = index + len(token)
 
     def train(self, sequence):
-        for i in range(self.vocabulary_size - self.U8_SIZE):
-            new_token = self.U8_SIZE + i + 1
+        for i in range(1, self.vocabulary_size - self.U8_SIZE):
+            new_token = self.U8_SIZE + i
 
             stats = self._get_stats(sequence)
 
