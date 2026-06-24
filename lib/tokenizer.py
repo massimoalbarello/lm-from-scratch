@@ -65,19 +65,16 @@ class Tokenizer:
     def encode(self, text):
         text_bytes = text.encode("utf-8")
         map = {}
-        logger.info(f"text bytes {text_bytes}")
         for i, token in sorted(self.vocabulary.items(), reverse=True):
             if token == self.PROHIBITED_TOKEN:
                 continue
             indeces = self.find_all(text_bytes, token)
             if len(indeces) == 0:
                 continue
-            logger.info(f"looking for token {token}")
             for index in indeces:
                 map[index] = (i, token)
-                logger.info(f"found at index {index}")
+                logger.info(f"found token {token} at index {index}")
             text_bytes = text_bytes.replace(token, self.PROHIBITED_TOKEN * len(token))
-            logger.info(f"text bytes {text_bytes}")
 
         return [pair[0] for _, pair in sorted(map.items())]
 
