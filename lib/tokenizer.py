@@ -13,16 +13,13 @@ class Tokenizer:
 
         self.vocabulary_size = vocabulary_size
         self.vocabulary = {i: bytes([i]) for i in range(self.U8_SIZE)}
+        self.merges = {}
 
-    def _get_max_occurring(self, sequence):
+    def _get_stats(self, sequence):
         stats: dict[(int, int), int] = {}
         for pair in zip(sequence, sequence[1:]):
             stats[pair] = stats.get(pair, 0) + 1
-
-        occurrences = sorted(((v, k) for k, v in stats.items()), reverse=True)
-        _, to_be_replaced = max(occurrences)
-
-        return to_be_replaced
+        return stats
 
     def _merge(self, sequence, to_be_replaced, new_token):
         new_sequence = []
@@ -53,7 +50,10 @@ class Tokenizer:
         for i in range(self.vocabulary_size - self.U8_SIZE):
             new_token = self.U8_SIZE + i + 1
 
-            to_be_replaced = self._get_max_occurring(sequence)
+            stats = self._get_stats(sequence)
+
+            occurrences = sorted(((v, k) for k, v in stats.items()), reverse=True)
+            _, to_be_replaced = max(occurrences)
 
             sequence = self._merge(sequence, to_be_replaced, new_token)
             logger.info(f"merged pair {to_be_replaced} into new token {new_token}")
@@ -61,6 +61,7 @@ class Tokenizer:
             self.vocabulary[new_token] = (
                 self.vocabulary[to_be_replaced[0]] + self.vocabulary[to_be_replaced[1]]
             )
+            self.merges[to_be_replaced] = new_token
 
     def encode(self, text):
         text_bytes = text.encode("utf-8")
@@ -77,6 +78,21 @@ class Tokenizer:
             text_bytes = text_bytes.replace(token, self.PROHIBITED_TOKEN * len(token))
 
         return [pair[0] for _, pair in sorted(map.items())]
+
+    def encode_v2(self, text):
+        sequence = text.encode("utf-8")
+        while True and len(sequence) > 1:
+            stats = self._get_stats(sequence)
+
+            # get the pair with the smallest token assigned among the merges
+            min_pair = min(stats, key=lambda p: self.merges.get(p, float("inf")))
+            if min_pair not in self.merges:
+                # nothing more to merge
+                break
+            token = self.merges[min_pair]
+            sequence = self._merge(sequence, min_pair, token)
+
+        return sequence
 
     def decode(self, sequence):
         text = b""
