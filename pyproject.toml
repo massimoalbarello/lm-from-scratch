@@ -3,7 +3,9 @@ name = "lm-from-scratch"
 version = "0.1.0"
 description = "learning how llms work"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "logging>=0.4.9.6",
+]
 
 [dependency-groups]
 dev = [
