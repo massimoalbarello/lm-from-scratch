@@ -66,6 +66,9 @@ class Value:
         out._backward = _backward
         return out
 
+    def __gt__(self, other):
+        return self.data > other.data
+
     def tanh(self):
         n = self.data
         t = (math.exp(2 * n) - 1) / (math.exp(2 * n) + 1)
@@ -73,6 +76,24 @@ class Value:
 
         def _backward():
             self.grad += (1 - t**2) * out.grad
+
+        out._backward = _backward
+        return out
+
+    def log(self):
+        out = Value(math.log(self.data), (self,), label="log")
+
+        def _backward():
+            self.grad += 1 / self.data * out.grad
+
+        out._backward = _backward
+        return out
+
+    def exp(self):
+        out = Value(math.exp(self.data), (self,), label="exp")
+
+        def _backward():
+            self.grad += math.exp(self.data) * out.grad
 
         out._backward = _backward
         return out
