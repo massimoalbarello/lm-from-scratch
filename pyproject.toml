@@ -5,6 +5,7 @@ description = "learning how llms work"
 requires-python = ">=3.12"
 dependencies = [
     "logging>=0.4.9.6",
+    "matplotlib>=3.11.0",
     "numpy>=2.5.0",
     "torch>=2.12.1",
 ]
